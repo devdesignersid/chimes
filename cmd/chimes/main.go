@@ -3,112 +3,33 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"strconv"
-	"syscall"
 	"time"
 
+	"github.com/devdesignersid/chimes/pkg/daemon"
 	"github.com/devdesignersid/chimes/pkg/reminder"
-	"github.com/sevlyar/go-daemon"
-	"github.com/shirou/gopsutil/process"
 )
 
 func main() {
-	cntxt := &daemon.Context{
-		PidFileName: "chimes.pid",
-		PidFilePerm: 0644,
-		LogFileName: "chimes.log",
-		LogFilePerm: 0640,
-		WorkDir:     "./",
-		Umask:       027,
-		Args:        []string{"[chimes-daemon]"},
-	}
-
-	d, err := cntxt.Reborn()
+	d := daemon.NewDaemon("chimes.pid", "chimes.log", 1*time.Second)
+	_, err := d.IsAlive()
 	if err != nil {
-		fmt.Println("Unable to run: ", err)
+		p, err := d.Spawn()
+		if p != nil {
+			return
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		d.Do(job)
+	} else {
+		d.Kill()
 	}
-
-	if d != nil {
-		return
-	}
-
-	defer cntxt.Release()
-
-	fmt.Println("- - - - - - - - - - - - - - -")
-	fmt.Println("daemon started")
-
-	go worker()
-
-	err = daemon.ServeSignals()
-	if err != nil {
-		fmt.Println("Error: ", err)
-	}
-
-	// Read the PID from the file
-	pidData, err := os.ReadFile("chimes.pid")
-	if err != nil {
-		fmt.Println("Unable to read PID file:", err)
-		return
-	}
-
-	// Parse the PID
-	pid, err := strconv.Atoi(string(pidData))
-	if err != nil {
-		fmt.Println("Unable to parse PID:", err)
-		return
-	}
-
-	// Get the process
-	p, err := process.NewProcess(int32(pid))
-	if err != nil {
-		fmt.Println("Unable to get process:", err)
-		return
-	}
-
-	// Kill the process
-	err = p.Kill()
-	if err != nil {
-		fmt.Println("Unable to kill process:", err)
-		return
-	}
-
-	fmt.Println("Process killed successfully")
-	fmt.Println("daemon terminated")
 
 }
 
-var (
-	stop = make(chan struct{})
-)
-
-func worker() {
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-
-	logFile, err := os.OpenFile("chimes.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer logFile.Close()
-
-	logger := log.New(logFile, "", log.LstdFlags)
-
-	for {
-		time.Sleep(1 * time.Second)
-
-		select {
-		case killSignal := <-interrupt:
-			fmt.Println("Got signal:", killSignal)
-			stop <- struct{}{}
-			fmt.Println("Worker stopped")
-		default:
-			logger.Println("Checking for due reminders...")
-		}
-	}
-
+func job(logger *log.Logger) {
+	logger.Println("Checking for due reminders...")
 }
 
 func getSampleData() {
