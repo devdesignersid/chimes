@@ -1,13 +1,25 @@
+# github.com/gen2brain/beeep v0.0.0-20230907135156-1a38885a97fc
+## explicit; go 1.14
+github.com/gen2brain/beeep
 # github.com/go-ole/go-ole v1.2.6
 ## explicit; go 1.12
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
+# github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4
+## explicit
+github.com/go-toast/toast
+# github.com/godbus/dbus/v5 v5.1.0
+## explicit; go 1.12
+github.com/godbus/dbus/v5
 # github.com/google/uuid v1.5.0
 ## explicit
 github.com/google/uuid
 # github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 ## explicit
 github.com/kardianos/osext
+# github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
+## explicit
+github.com/nu7hatch/gouuid
 # github.com/sevlyar/go-daemon v0.1.6
 ## explicit
 github.com/sevlyar/go-daemon
@@ -18,6 +30,11 @@ github.com/shirou/gopsutil/internal/common
 github.com/shirou/gopsutil/mem
 github.com/shirou/gopsutil/net
 github.com/shirou/gopsutil/process
+# github.com/stretchr/testify v1.8.4
+## explicit; go 1.20
+# github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af
+## explicit
+github.com/tadvi/systray
 # github.com/tklauser/go-sysconf v0.3.13
 ## explicit; go 1.18
 github.com/tklauser/go-sysconf
@@ -31,3 +48,4 @@ github.com/yusufpapurcu/wmi
 ## explicit; go 1.18
 golang.org/x/sys/unix
 golang.org/x/sys/windows
+golang.org/x/sys/windows/registry
