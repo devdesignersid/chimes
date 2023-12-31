@@ -1,13 +1,24 @@
 package reminder
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 type ReminderService struct {
 	storage ReminderStorager
 }
 
-func NewReminderService(storage ReminderStorager) *ReminderService {
-	return &ReminderService{storage}
+var (
+	reminderServiceOnce     sync.Once
+	reminderServiceInstance *ReminderService
+)
+
+func GetReminderService(storage ReminderStorager) *ReminderService {
+	reminderServiceOnce.Do(func() {
+		reminderServiceInstance = &ReminderService{storage}
+	})
+	return reminderServiceInstance
 }
 
 func (service *ReminderService) Save(data CreateReminderData) (Reminder, error) {
@@ -30,7 +41,16 @@ func (service *ReminderService) Delete(id string) (bool, error) {
 	return service.storage.Delete(id)
 }
 
-func (service *ReminderService) FindDueReminders(id string) []Reminder {
+func (service *ReminderService) FindDueReminders() []Reminder {
 	currentTime := time.Now()
-	return service.Find(FilterReminder{DueOn: &currentTime})
+	dueReminders := service.Find(FilterReminder{DueOn: &currentTime})
+
+	for _, reminder := range dueReminders {
+		if reminder.Repeat {
+			updatedDue := reminder.Due.Add(reminder.RepeatInterval)
+			service.Update(reminder.Id, UpdateReminderData{Due: &updatedDue})
+		}
+	}
+
+	return dueReminders
 }

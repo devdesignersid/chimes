@@ -7,9 +7,11 @@ import (
 
 	"github.com/devdesignersid/chimes/pkg/daemon"
 	"github.com/devdesignersid/chimes/pkg/reminder"
+	"github.com/gen2brain/beeep"
 )
 
 func main() {
+	seedData()
 	d := daemon.NewDaemon("chimes.pid", "chimes.log", 1*time.Second)
 	_, err := d.IsAlive()
 	if err != nil {
@@ -29,27 +31,27 @@ func main() {
 }
 
 func job(logger *log.Logger) {
-	logger.Println("Checking for due reminders...")
+	inMemoryReminderStorage := reminder.GetInMemoryReminderStorage()
+	reminderService := reminder.GetReminderService(inMemoryReminderStorage)
+
+	dueReminders := reminderService.FindDueReminders()
+	for _, dueReminder := range dueReminders {
+		err := beeep.Notify("Chimes Reminder", dueReminder.Message, "assets/icon.png")
+		if err != nil {
+			panic(err)
+		}
+	}
+
 }
 
-func getSampleData() {
-	fmt.Println("Chimes")
+func seedData() {
+	inMemoryReminderStorage := reminder.GetInMemoryReminderStorage()
+	reminderService := reminder.GetReminderService(inMemoryReminderStorage)
+	futureTime := time.Now().Add(3 * time.Second)
 
-	inMemoryReminderStorage := reminder.NewInMemoryReminderStorage()
-	reminderService := reminder.NewReminderService(inMemoryReminderStorage)
+	reminderService.Save(reminder.CreateReminderData{Message: "Drink water", Due: futureTime, Priority: reminder.Priority(2), Repeat: true, RepeatInterval: 3 * time.Second})
 
-	currentTime := time.Now()
-	futureTime := time.Now().Add(1 * time.Minute)
+	reminders := reminderService.Find(reminder.FilterReminder{})
+	fmt.Printf("%#v", reminders)
 
-	reminderService.Save(reminder.CreateReminderData{Message: "Drink water", Due: futureTime, Priority: reminder.Priority(2)})
-	reminderService.Save(reminder.CreateReminderData{Message: "Walk away from keyboard", Due: futureTime, Priority: reminder.Priority(1)})
-	reminderService.Save(reminder.CreateReminderData{Message: "Attend standup", Due: futureTime, Priority: reminder.Priority(0)})
-
-	sortOrder := reminder.Desc
-	orderBy := reminder.ByPriority
-
-	reminders := reminderService.Find(reminder.FilterReminder{DueAfter: &currentTime, SortOrder: &sortOrder, OrderBy: &orderBy})
-	for _, reminder := range reminders {
-		fmt.Printf("%s, %s, %s\n", reminder.Message, reminder.Due.Format("January 2, 2006, 3:04 PM"), reminder.Priority)
-	}
 }

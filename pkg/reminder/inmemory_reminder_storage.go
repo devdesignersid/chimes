@@ -3,6 +3,7 @@ package reminder
 import (
 	"errors"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,14 +13,23 @@ type InMemoryReminderStorage struct {
 	data map[string]Reminder
 }
 
-func NewInMemoryReminderStorage() *InMemoryReminderStorage {
-	return &InMemoryReminderStorage{
-		data: make(map[string]Reminder),
-	}
+var (
+	inMemoryReminderStorageOnce     sync.Once
+	inMemoryReminderStorageInstance *InMemoryReminderStorage
+)
+
+func GetInMemoryReminderStorage() *InMemoryReminderStorage {
+	inMemoryReminderStorageOnce.Do(func() {
+		inMemoryReminderStorageInstance = &InMemoryReminderStorage{
+			data: make(map[string]Reminder),
+		}
+	})
+	return inMemoryReminderStorageInstance
+
 }
 
 func (storage *InMemoryReminderStorage) Save(data CreateReminderData) (Reminder, error) {
-	reminder := Reminder{Id: uuid.NewString(), Message: data.Message, Due: data.Due, Priority: data.Priority, CreatedAt: time.Now()}
+	reminder := Reminder{Id: uuid.NewString(), Message: data.Message, Due: data.Due, Priority: data.Priority, CreatedAt: time.Now(), Repeat: data.Repeat, RepeatInterval: data.RepeatInterval}
 	storage.data[reminder.Id] = reminder
 	return reminder, nil
 }
@@ -46,7 +56,7 @@ func (storage *InMemoryReminderStorage) Find(filter FilterReminder) []Reminder {
 		if filter.DueAfter != nil && value.Due.Before(*filter.DueAfter) {
 			continue
 		}
-		if filter.DueOn != nil && value.Due != *filter.DueOn {
+		if filter.DueOn != nil && value.Due.Unix() != (*filter.DueOn).Unix() {
 			continue
 		}
 		values = append(values, value)

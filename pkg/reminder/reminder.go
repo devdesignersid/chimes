@@ -24,23 +24,29 @@ func (rp Priority) String() string {
 }
 
 type Reminder struct {
-	Id        string
-	Message   string
-	Due       time.Time
-	Priority  Priority
-	CreatedAt time.Time
+	Id             string
+	Message        string
+	Due            time.Time
+	Priority       Priority
+	CreatedAt      time.Time
+	Repeat         bool
+	RepeatInterval time.Duration
 }
 
 type CreateReminderData struct {
-	Message  string
-	Due      time.Time
-	Priority Priority
+	Message        string
+	Due            time.Time
+	Priority       Priority
+	Repeat         bool
+	RepeatInterval time.Duration
 }
 
 type UpdateReminderData struct {
-	Message  *string
-	Due      *time.Time
-	Priority *Priority
+	Message        *string
+	Due            *time.Time
+	Priority       *Priority
+	Repeat         *bool
+	RepeatInterval *time.Duration
 }
 
 type SortOrderValue string
