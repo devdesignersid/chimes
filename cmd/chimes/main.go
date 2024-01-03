@@ -5,13 +5,14 @@ import (
 	"log"
 	"time"
 
+	"github.com/devdesignersid/chimes/cmd"
 	"github.com/devdesignersid/chimes/pkg/daemon"
 	"github.com/devdesignersid/chimes/pkg/reminder"
 	"github.com/gen2brain/beeep"
 )
 
 func main() {
-	seedData()
+	cmd.Execute()
 	d := daemon.NewDaemon("chimes.pid", "chimes.log", 1*time.Second)
 	_, err := d.IsAlive()
 	if err != nil {
@@ -31,8 +32,12 @@ func main() {
 }
 
 func job(logger *log.Logger) {
-	inMemoryReminderStorage := reminder.GetInMemoryReminderStorage()
-	reminderService := reminder.GetReminderService(inMemoryReminderStorage)
+	logger.Println("Checking for due reminder...")
+	sqliteReminderStorage, err := reminder.GetSqliteReminderStorage()
+	if err != nil {
+		panic(err)
+	}
+	reminderService := reminder.GetReminderService(sqliteReminderStorage)
 
 	dueReminders := reminderService.FindDueReminders()
 	for _, dueReminder := range dueReminders {

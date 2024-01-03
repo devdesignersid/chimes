@@ -37,7 +37,7 @@ func (storage *InMemoryReminderStorage) Save(data CreateReminderData) (Reminder,
 func (storage *InMemoryReminderStorage) Find(filter FilterReminder) []Reminder {
 	values := make([]Reminder, 0, len(storage.data))
 	orderBy := ByCreatedAt
-	sortOrder := Desc
+	sortOrder := Asc
 
 	if filter.OrderBy != nil {
 		orderBy = *filter.OrderBy
