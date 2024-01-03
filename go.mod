@@ -5,6 +5,7 @@ go 1.21.5
 require (
 	github.com/gen2brain/beeep v0.0.0-20230907135156-1a38885a97fc
 	github.com/google/uuid v1.5.0
+	github.com/mattn/go-sqlite3 v1.14.19
 	github.com/sevlyar/go-daemon v0.1.6
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cobra v1.8.0
