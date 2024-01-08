@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -25,14 +24,11 @@ func main() {
 		}
 
 		d.Do(job)
-	} else {
-		d.Kill()
 	}
 
 }
 
 func job(logger *log.Logger) {
-	logger.Println("Checking for due reminder...")
 	sqliteReminderStorage, err := reminder.GetSqliteReminderStorage()
 	if err != nil {
 		panic(err)
@@ -46,17 +42,5 @@ func job(logger *log.Logger) {
 			panic(err)
 		}
 	}
-
-}
-
-func seedData() {
-	inMemoryReminderStorage := reminder.GetInMemoryReminderStorage()
-	reminderService := reminder.GetReminderService(inMemoryReminderStorage)
-	futureTime := time.Now().Add(3 * time.Second)
-
-	reminderService.Save(reminder.CreateReminderData{Message: "Drink water", Due: futureTime, Priority: reminder.Priority(2), Repeat: true, RepeatInterval: 3 * time.Second})
-
-	reminders := reminderService.Find(reminder.FilterReminder{})
-	fmt.Printf("%#v", reminders)
 
 }

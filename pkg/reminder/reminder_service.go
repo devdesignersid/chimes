@@ -29,15 +29,15 @@ func (service *ReminderService) Find(filter FilterReminder) []Reminder {
 	return service.storage.Find(filter)
 }
 
-func (service *ReminderService) FindOne(id string) (Reminder, error) {
+func (service *ReminderService) FindOne(id int) (Reminder, error) {
 	return service.storage.FindOne(id)
 }
 
-func (service *ReminderService) Update(id string, data UpdateReminderData) (Reminder, error) {
+func (service *ReminderService) Update(id int, data UpdateReminderData) (Reminder, error) {
 	return service.storage.Update(id, data)
 }
 
-func (service *ReminderService) Delete(id string) (bool, error) {
+func (service *ReminderService) Delete(id int) (bool, error) {
 	return service.storage.Delete(id)
 }
 

@@ -24,7 +24,7 @@ func (rp Priority) String() string {
 }
 
 type Reminder struct {
-	Id             string
+	Id             int
 	Message        string
 	Due            time.Time
 	Priority       Priority

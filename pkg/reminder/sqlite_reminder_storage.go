@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -44,7 +43,7 @@ func GetSqliteReminderStorage() (*SqliteReminderStorage, error) {
 func CreateTable(storage *SqliteReminderStorage) error {
 	statement, err := storage.db.Prepare(`
 		CREATE TABLE IF NOT EXISTS reminders (
-			id TEXT PRIMARY KEY,
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			message TEXT,
 			due DATETIME,
 			priority INTEGER,
@@ -65,7 +64,6 @@ func CreateTable(storage *SqliteReminderStorage) error {
 
 func (storage *SqliteReminderStorage) Save(data CreateReminderData) (Reminder, error) {
 	reminder := Reminder{
-		Id:             uuid.NewString(),
 		Message:        data.Message,
 		Due:            data.Due,
 		Priority:       data.Priority,
@@ -75,13 +73,12 @@ func (storage *SqliteReminderStorage) Save(data CreateReminderData) (Reminder, e
 	}
 
 	statement, err := storage.db.Prepare(`INSERT INTO reminders
-	(id, message, due, priority, created_at, repeat, repeat_interval) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+	(message, due, priority, created_at, repeat, repeat_interval) VALUES (?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return Reminder{}, err
 	}
 
 	_, err = statement.Exec(
-		reminder.Id,
 		reminder.Message,
 		reminder.Due.Format("2006-01-02 15:04:05"),
 		reminder.Priority,
@@ -160,7 +157,7 @@ func (storage *SqliteReminderStorage) Find(filter FilterReminder) []Reminder {
 	return values
 }
 
-func (storage *SqliteReminderStorage) FindOne(id string) (Reminder, error) {
+func (storage *SqliteReminderStorage) FindOne(id int) (Reminder, error) {
 	var reminder Reminder
 	row := storage.db.QueryRow(`SELECT
 	 id,
@@ -183,7 +180,7 @@ func (storage *SqliteReminderStorage) FindOne(id string) (Reminder, error) {
 	return reminder, nil
 }
 
-func (storage *SqliteReminderStorage) Update(id string, data UpdateReminderData) (Reminder, error) {
+func (storage *SqliteReminderStorage) Update(id int, data UpdateReminderData) (Reminder, error) {
 	reminder, err := storage.FindOne(id)
 	if err != nil {
 		return Reminder{}, err
@@ -224,7 +221,7 @@ func (storage *SqliteReminderStorage) Update(id string, data UpdateReminderData)
 	return reminder, nil
 }
 
-func (storage *SqliteReminderStorage) Delete(id string) (bool, error) {
+func (storage *SqliteReminderStorage) Delete(id int) (bool, error) {
 	_, err := storage.FindOne(id)
 	if err != nil {
 		return false, err

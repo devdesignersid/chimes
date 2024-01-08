@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	id             int
 	memo           string
 	days           int
 	months         int

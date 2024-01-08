@@ -41,8 +41,8 @@ var listCmd = &cobra.Command{
 
 		dueReminders := reminderService.Find(reminderFilter)
 
-		for i, dueReminder := range dueReminders {
-			fmt.Printf("%d. %s - %s\n", i+1, dueReminder.Message, dueReminder.Due.Format("02 January 2006 03:04:05 PM"))
+		for _, dueReminder := range dueReminders {
+			fmt.Printf("%d. %s - %s\n", dueReminder.Id, dueReminder.Message, dueReminder.Due.Format("02 January 2006 03:04:05 PM"))
 		}
 
 	},
