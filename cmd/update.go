@@ -54,7 +54,7 @@ var updateCmd = &cobra.Command{
 		reminderService := reminder.GetReminderService(sqliteReminderStorage)
 		_, err = reminderService.FindOne(id)
 		if err != nil {
-			fmt.Printf("No reminder found with id: %s", id)
+			fmt.Printf("No reminder found with id: %d", id)
 			return
 		}
 
