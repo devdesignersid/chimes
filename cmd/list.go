@@ -16,7 +16,7 @@ var (
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "",
+	Short: "List all available reminders",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		reminderFilter := reminder.FilterReminder{}
